@@ -1,0 +1,459 @@
+\input texinfo
+@c %** start of header
+@setfilename e-monotone.info
+@settitle emacs monotone interface
+@c %** end of header
+@copying
+An emacs front end for monotone, largely inspired on pcl-cvs.
+This document describes version 0.4
+
+Copyright @copyright{} 2005 W. R. Oudshoorn
+@end copying
+
+@titlepage
+@title e-monotone
+@subtitle A pcl-cvs like interface to monotone
+@author Willem Rein Oudshoorn
+
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@contents
+
+@ifnottex
+@node Top, Introduction, (dir), (dir)
+@top emacs monotone interface
+@insertcopying
+@end ifnottex
+
+@menu
+* Introduction::                
+* Installation::                
+* Using e-monotone::         
+* Advanced Uses::
+* BUGS::                        
+* TODO::                        
+* Index::                       Complete index.
+@end menu
+
+@node Introduction, Installation, Top, Top
+@chapter Introduction
+
+This package is a simple emacs interface to monotone. 
+In its use it is somewhat similar to the pcl-cvs front end for CVS.
+However pcl-cvs is a mature package and this one is not, so
+expect a lot of rough edges, bugs and not a lot of advanced features.
+
+For people who do not know pcl-cvs, this mode will allow you to manage
+an existing monotone project.  It will 
+
+@itemize @bullet
+@item 
+Show a listing of all the files in the project, including their state.
+@item
+Allow you to show a diff of an edited file against the repository
+@item
+Allow you to commit the whole tree and specify a commit message.
+@item
+Allow to undo file changes, revert the file to version in the monotone database
+@item
+Add and Drop files.
+@end itemize
+
+@noindent What it will not do yet, but is desirable for the future
+
+@itemize @bullet
+@item
+Branching, allow to switch to a different branch.
+@item
+Synchronization, synchronize your changes with another database
+@item
+Merging
+@end itemize
+
+@noindent What I do not envision this mode to do is
+
+@itemize @bullet
+@item 
+Create a new project
+@item
+Checkout a new project
+@item
+etcetera
+@end itemize
+
+@noindent Although, it might be added a la gnus's server configuration.
+
+@node Installation, Using e-monotone, Introduction, Top
+@comment  node-name,  next,  previous,  up
+@chapter Installation
+
+Installation is pretty straightforward, copy the elisp files,
+@file{e-monotone.el}, @file{e-monotone-a.el}, @file{e-monotone-wami.el},
+@file{e-monotone-certs.el} and @file{e-monotone-graphs.el} to
+a location in the emacs load path, and put the following in your @file{.emacs} file
+
+@lisp
+(load "e-monotone.el")
+@end lisp
+
+If emacs complains during startup that it can not fine @file{e-monotone-a.el} 
+or any other e-monotone file, the files are not installed the emacs load path.
+The load path can be changed with
+
+@lisp
+(add-to-list 'load-path (expand-file-name "/path/to/e-monotone"))
+@end lisp
+
+@section Compatibility
+
+At the moment it is only tested with monotone version 0.23.  It uses 
+only a few monotone commands, but these includes @code{automate inventory}
+and @code{automate heads}.  So if the output format is changed it probably
+will not work.  Also for performance reasons, it will use @code{db execute} 
+to get all the certificates.  This does not work with version 0.26 because
+the database has changed.  Most things will still work, but most noticably, the
+graph drawing is not as nice with version 0.26.
+
+@section Configuration
+
+Emacs need to be able to find the @command{monotone} executable.  Default it tries
+to find an executable with the name @command{monotone} or @command{mtn}
+in the @env{PATH}.  If this does not work you can tell emacs which executables to use by putting
+
+@lisp
+(setq monotone-configuration '(("MT" "/path/and/monotone-executable-pre-0.26-name" t)
+                               ("_MTN" "/path/and/monotone-executable-0.26-or-higher" nil)))
+@end lisp
+
+in your @file{.emacs} file.
+If you are on windows, you can use dos style paths but don't forgot to quote the slash.  
+So a path should look like @code{f:\\path\\monotone.exe"}.
+
+Similar for viewing the graphs in emacs you might want to set the path
+to the @command{dot} executable.   If @command{dot} is not found add
+
+@lisp
+(setq dot-cmd "/path/and/dot-executable-name")
+@end lisp
+
+The @command{dot} program is part of graphviz and is used
+to convert graphs pictures.  
+The @command{dot} program needs to be able to convert to
+@file{.png} files.
+
+@node Using e-monotone, Advanced Uses, Installation, Top
+@chapter Using e-monotone
+
+
+@section The main window
+
+The first thing to do is to have a monotone project.  Now lets assume
+this project lives in the directory @file{~/src/em}.  
+Now to start the e-monotone you use the command
+@kbd{M-x monotone-examine}.  This will prompt for a directory in 
+the usual emacs way.  So just supply the directory above, @file{~/src/em}
+and you end up with a screen that roughly looks like:
+
+@cartouche
+@example
+@b{directory} ~/src/em
+@b{revision}  3f70e5cd7cee3b080767aa447354dcb16bcff2ef
+@b{heads}     3f70e5cd7cee3b080767aa447354dcb16bcff2ef
+
+  @b{branch} "nl.xs4all.ironhead.emacs-monotone"
+@b{database} "/home/woudshoo/monotone/configuration.db"
+     @b{key} ""
+
+Working copy based on head, and there are @b{pending} changes
+
+edited:                0    added:                 1    unknown:   16
+renamed-and-edited:    0    added-and-missing:     0    ignored:    3
+renamed:               0    dropped:               0
+unchanged:             2    missing:               0    TOTAL:     22
+
+Currently displaying (added added-and-missing dropped edited renamed missing)
+
+
+       @b{added}  e-monotone.texi
+@end example
+@end cartouche
+
+Now there a few sections in in the screen,
+the first two lines indicate on which revision our current source is based,
+and what the monotone-database thinks the most up to date revisions are.
+In this case, they are equal, so we are working on the head revision.
+This information is also displayed in the 8-th line, which is the summary line.
+The summary line displays the most important information, in the example it is
+@example
+Working copy based on head, and there are @b{pending} changes
+@end example
+and here we can see that we are based on head, so committing
+will not create an additional head and there are local changes.
+
+Just above the summary line we have some general information,
+the branch we work on, the database that is used and the default
+key that is used.  Actually it is just the content of the @file{MT/options} file.
+
+Below the summary line we display some statistics of the project.  
+Here we see that the project contains 22 files, of which 19 are not 
+under version control (the unknown and the ignored files) one is newly added,
+and 2 are already under version control but not changed.
+
+Below the statistics section we see the file listing.  
+In this example it shows only one file, the newly added @file{e-monotone.texi} file.
+It shows only one file, because the file listing is filtered.  At the moment
+it shows only interesting files.  The buffer explains which files are displayed
+by the line:
+@example
+Currently displaying (added added-and-missing dropped edited renamed missing)
+@end example
+So it does display the added file, but not the 16 unknown and not the 3 ignored files.
+
+@subsection Filtering
+
+As seen in this example, the list of files is filtered.  When @kbd{M-x monotone-examine} is
+invoked it starts with displaying only the interesting files.  The interesting files
+are files which according to monotone have one of the following states
+@code{added, dropped, renamed, edited, missing, added-and-missing}.  
+This is done to avoid cluttering the buffer all the uninteresting files. 
+However it is very easy to change the filtering.  If you want to see all
+files just press the key @kbd{a} for all and you will see all files listed, in this case 22.
+Pressing @kbd{i} will bring you back to the list of interesting files.
+There is one other predefined filter, accessed by @kbd{k}, the known file list.  This
+displays all files that are under version control.
+
+It is also possible to show/hide per category.
+@table @kbd
+@item sa
+Toggles the display of the added files
+@item sd
+Toggle the display of dropped files     
+@item si
+Toggles the display of ignored files
+@item sm
+Toggle the display of missing files
+@item se
+Toggle the display of edited files
+@item su
+Toggle the display of unchanged files
+@item sr
+Toggle the display of renamed files
+@item s?
+Toggle the display of unknown files
+@end table
+
+
+@subsection Examining files
+
+When the cursor is positioned on file line the @kbd{@key{RET}} will open this
+file in a new buffer.  
+If the file was edited you can use the @kbd{=} key to open a buffer
+containing the difference between the current content and the content
+of the file as it was when this version was checked out.
+
+@subsection Reverting
+
+After you have carefully considered the output of @kbd{=} and decide
+that you do not want this change, for example because you have only
+added temporary debugging statement, you can use @kbd{U} in the monotone
+buffer, with the cursor on the line of the file, to revert this file back
+to the original state.  
+
+
+@subsection Adding/Dropping
+
+In the monotone buffer the keys @kbd{A} and @kbd{D} can be used to add respectively
+drop files from monotone.
+
+@section Committing
+
+Finally we want to commit.  By pressing @kbd{C} a buffer is opened that
+contains a description of all the changes that are being committing.  
+All the lines in this buffer start with @code{MT:}.  Just before the actual
+commit takes place all the lines starting with @code{MT:} are removed and the
+text that is left is used as the commit message.
+The user initiates the commit by pressing @kbd{C-c C-c} in the commit buffer.
+So normally you press @kbd{C} in the monotone buffer, add some lines in the
+commit buffer and finish it off with @kbd{C-c C-c}. 
+If at any time you want to remove the comment lines, you can do that by
+@kbd{C-c C-r}.  If you do not want to see these lines at all you should
+start by using @kbd{c} instead of @kbd{C}.  Using the lowercase version
+is equivalent with the capital version except that the commit buffer starts
+out empty.
+
+
+@node Advanced Uses, BUGS, Using e-monotone, Top
+@chapter Advanced Uses
+
+@section Marking
+
+In the monotone buffer you can mark files by pressing @kbd{m} and
+unmark them with @kbd{u}.  After marking the commands that
+normally work on a single file will work on the marked collection.
+This allows you to Add, Delete, Revert or Commit only a selected 
+number of files.
+
+Note that marking and displaying are independent.
+So it is possible to have a lot of marked files and
+not see them flagged in the monotone buffer.
+Fortunately e-monotone will ask for confirmation when operating
+on the marked files.
+
+The key @kbd{M-u} will unmark all marked files.
+
+@section Diffing revisions
+
+Pressing @kbd{=} on the revision ids in the top of the buffer will
+present a diff between that revision and your working copy.
+
+@node Annotate
+@comment  node-name,  next,  previous,  up
+
+Presssing @kbd{t} in the monotone buffer on a line containing a file
+will show the annotated version.  
+
+The annotated file is by default displayed with on the left hand side
+a shortened revision hash and on the right hand side the content of the file.
+
+The display can be changed in several ways, 
+@table @kbd
+@item ss
+Shows the shortened revision hashes, this is the default.
+@item sf
+Show the full length revision hash.
+@item sa
+Show the value of the author certificate
+@item sd
+Show the value of the date certificate
+@end table
+
+Furthermore, the way the lines are coloured can be changed,
+the default is to more or less assign a random colour
+to a revision. By key sequence @kbd{cd} will colour the revisions
+by date.  Pressing @kbd{cr} will revert to the random colouring
+of revisions.
+
+@node Revision diagrams
+@comment  node-name,  next,  previous,  up
+
+In the monotone and annotate buffer pressing @kbd{W} show
+a revision graph rendered by @command{dot}.
+
+@section Revision graphs
+
+A monotone database typically holds hundredths or thousands of revisions,
+so a displaying a complete revision graph is a bit useless.  
+The graph needs to be reduced to a managable size.
+
+A simple way of reducing the graph is to pick an interesting node,
+like the current revision, and only show a small neighborhood
+of this node.
+
+This is of course not the only way to reduce a graph, but
+to keep it managable in monotone all graphs displayed are limited
+by the number of nodes displayed.   The numebr of nodes that is displayed
+is increased by the @kbd{+} key and reduced by the @kbd{-}.  Because
+the image displayed has a fixed size this will result in some kind
+of zooming effect. 
+
+@section Configuration
+
+There are two important variables that you can configure for the displaying
+of the revision graphs, 
+
+@table @code
+@item monotone-preffered-branches 
+This variable contains a list of regular expressions.  
+These expressions are used when a revision has multiple branch certificates.
+If a revision has multiple branch certificates and one of branch names
+matches one of the regular expressions in the preffered-branches variables
+it will assume the matched branch name for coloring.
+@item monotone-wami-node-displayed-certs
+This variable determines which certificates are displayed in the diagrams.
+It is a list of certificate names to display.  A list element is either
+a string, in which case the value is displayed as such, or a cons pair.
+The first element of the cons pair is a certifacte name and the second
+element a functions which takes as argument the branch value and
+returns the string to display instead.
+@end table
+
+
+@section Types of revision graphs
+
+Beside just taking a number of neighbouring nodes e-monotone has
+the ability to modify the displayed graph in interesting ways.
+
+@subsection Reduced display
+
+A basic reduction step is to remove all nodes that have exactly
+one parent and exactly one child.  
+Removing these nodes will leave the topology of the graph intact
+and allow you to display more of the neighbourhood of the interesting
+node than otherwise would be the case.  The displayed graph will
+display the edge that previously contained the node blue, so
+you have an indication that some revisions are ommited along the blue arc.
+
+@subsection Branch crossings
+
+This reduction steps try to display the interaction between branches
+by mostly ignoring what happens inside a branch.  The reduction tries
+to remove as many nodes as possible, only keeping those  
+who either have a parent in a different branch or a child in a different branch.
+Also in order to keep an overview, head nodes and root nodes are not deleted.
+
+@subsection Incoming branches
+
+This concentrates on what is merged in from other branches in the
+current branch.  Here current branch is determined by which branch the
+intereseting revision belongs to.  The nodes that are kept are 
+the nodes in the current branch who have a parent in a different branch.
+Also nodes in a branch different from the current branch who have
+a child in the current branch are kept.  As usual the heads and root
+node of the current branch are not discarded.
+
+@subsection Major branch crossings
+
+This needs to be documented and made configurable.
+
+@subsection Annotate display
+
+If the graph is generated from the annotate buffer the graph displayed
+will display the current revision plus all revisions that are mentioned
+in the annotate buffer.  
+
+
+@node BUGS, TODO, Advanced Uses, Top
+@chapter BUGS
+
+There a plenty bugs I know of,
+@itemize 
+@item
+Cursor position is not well maintained when buffer is redisplayed
+@item
+Lots of file states are not handled correctly, for example renaming
+@item
+Font lock coloring of the commit buffer is wrong
+@item
+After add/drop/revert the file status displayed may be incorrect.
+Work around, regenerate with @kbd{g}
+@item
+Many many more
+@end itemize
+
+
+@node TODO, Index, BUGS, Top
+@chapter TODO
+
+A lot :-)
+
+
+@node Index,  , TODO, Top
+
+@unnumbered Index
+
+@printindex cp
+
+@bye
