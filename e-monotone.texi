@@ -29,13 +29,13 @@ Copyright @copyright{} 2005 W. R. Oudshoorn
 @end ifnottex
 
 @menu
-* Introduction::                
-* Installation::                
-* Using e-monotone::         
+* Introduction::
+* Installation::
+* Using e-monotone::
 * Advanced Uses::
-* BUGS::                        
-* TODO::                        
-* Index::                       Complete index.
+* Revision diagrams::
+* BUGS::
+* TODO::
 @end menu
 
 @node Introduction, Installation, Top, Top
@@ -285,9 +285,16 @@ is equivalent with the capital version except that the commit buffer starts
 out empty.
 
 
-@node Advanced Uses, BUGS, Using e-monotone, Top
+@node Advanced Uses, Revision diagrams, Using e-monotone, Top
 @chapter Advanced Uses
 
+@menu
+* Marking::
+* Difference revision::
+* Annotate::
+@end menu
+
+@node Marking, Difference revision, Advanced Uses, Advanced Uses
 @section Marking
 
 In the monotone buffer you can mark files by pressing @kbd{m} and
@@ -304,13 +311,16 @@ on the marked files.
 
 The key @kbd{M-u} will unmark all marked files.
 
+
+@node Difference revision, Annotate, Marking, Advanced Uses
 @section Diffing revisions
 
 Pressing @kbd{=} on the revision ids in the top of the buffer will
 present a diff between that revision and your working copy.
 
-@node Annotate
+@node Annotate,  , Difference revision, Advanced Uses
 @comment  node-name,  next,  previous,  up
+@section Annotate
 
 Presssing @kbd{t} in the monotone buffer on a line containing a file
 will show the annotated version.  
@@ -336,8 +346,9 @@ to a revision. By key sequence @kbd{cd} will colour the revisions
 by date.  Pressing @kbd{cr} will revert to the random colouring
 of revisions.
 
-@node Revision diagrams
+@node Revision diagrams, BUGS, Advanced Uses, Top
 @comment  node-name,  next,  previous,  up
+@chapter Revision diagrams
 
 In the monotone and annotate buffer pressing @kbd{W} show
 a revision graph rendered by @command{dot}.
@@ -425,7 +436,7 @@ will display the current revision plus all revisions that are mentioned
 in the annotate buffer.  
 
 
-@node BUGS, TODO, Advanced Uses, Top
+@node BUGS, TODO, Revision diagrams, Top
 @chapter BUGS
 
 There a plenty bugs I know of,
@@ -444,16 +455,11 @@ Many many more
 @end itemize
 
 
-@node TODO, Index, BUGS, Top
+@node TODO,  , BUGS, Top
 @chapter TODO
 
 A lot :-)
 
 
-@node Index,  , TODO, Top
-
-@unnumbered Index
-
-@printindex cp
 
 @bye

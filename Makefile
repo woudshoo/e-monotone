@@ -3,10 +3,10 @@
 %.html: %.texi style.css 
 	makeinfo --html --no-split --css-include=style.css $<
 
-%.pdf:  %.texinfo 
+%.pdf:  %.texi
 	texi2pdf $<
 
-%.info: %.texinfo
+%.info: %.texi
 	makeinfo --no-split $<
 
 html: e-monotone.html
