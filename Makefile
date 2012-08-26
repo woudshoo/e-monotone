@@ -1,6 +1,6 @@
 
 
-%.html: %.texinfo style.css 
+%.html: %.texi style.css 
 	makeinfo --html --no-split --css-include=style.css $<
 
 %.pdf:  %.texinfo 
@@ -22,6 +22,6 @@ pages: e-monotone.html
 	rm index.html
 	git checkout -f master
 
-install-info: e-monotone.info
+install-info: e-monotone.html
 	cp e-monotone.info ~/share/info
 	install-info e-monotone.info ~/share/info/dir
