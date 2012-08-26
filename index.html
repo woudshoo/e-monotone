@@ -1,0 +1,570 @@
+<html lang="en">
+<head>
+<title>emacs monotone interface</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="emacs monotone interface">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="top" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+An emacs front end for monotone, largely inspired on pcl-cvs.
+This document describes version 0.4
+
+Copyright (C) 2005 W. R. Oudshoorn-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+.node { visibility:hidden; height: 0px; }
+  .menu { visibility:hidden; height: 0px; }
+  .appendix { background-color:#a4bbff; padding: 0.2em; }
+  .chapter { background-color:#a4bbff; padding: 0.2em; }
+  .section { background-color:#a4bbff; padding: 0.2em; }
+  .settitle { background-color:#a4bbff; }
+  .contents { border: 2px solid black;
+              margin: 1cm 1cm 1cm 1cm;
+              padding-left: 3mm; }
+  .lisp { padding: 0; margin: 0em; }
+  code { font-family: sans-serif; font-style: italic;}
+  body { padding: 2em 8em; font-family: sans-serif; }
+  h1 { padding: 1em; text-align: center; }
+  li { margin: 1em; }
+
+--></style>
+</head>
+<body>
+<h1 class="settitle">emacs monotone interface</h1>
+   <div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top" href="#Top">emacs monotone interface</a>
+<li><a name="toc_Introduction" href="#Introduction">1 Introduction</a>
+<li><a name="toc_Installation" href="#Installation">2 Installation</a>
+<ul>
+<li><a href="#Installation">2.1 Compatibility</a>
+<li><a href="#Installation">2.2 Configuration</a>
+</li></ul>
+<li><a name="toc_Using-e_002dmonotone" href="#Using-e_002dmonotone">3 Using e-monotone</a>
+<ul>
+<li><a href="#Using-e_002dmonotone">3.1 The main window</a>
+<ul>
+<li><a href="#Using-e_002dmonotone">3.1.1 Filtering</a>
+<li><a href="#Using-e_002dmonotone">3.1.2 Examining files</a>
+<li><a href="#Using-e_002dmonotone">3.1.3 Reverting</a>
+<li><a href="#Using-e_002dmonotone">3.1.4 Adding/Dropping</a>
+</li></ul>
+<li><a href="#Using-e_002dmonotone">3.2 Committing</a>
+</li></ul>
+<li><a name="toc_Advanced-Uses" href="#Advanced-Uses">4 Advanced Uses</a>
+<ul>
+<li><a href="#Marking">4.1 Marking</a>
+<li><a href="#Difference-revision">4.2 Diffing revisions</a>
+<li><a href="#Annotate">4.3 Annotate</a>
+</li></ul>
+<li><a name="toc_Revision-diagrams" href="#Revision-diagrams">5 Revision diagrams</a>
+<ul>
+<li><a href="#Revision-diagrams">5.1 Revision graphs</a>
+<li><a href="#Revision-diagrams">5.2 Configuration</a>
+<li><a href="#Revision-diagrams">5.3 Types of revision graphs</a>
+<ul>
+<li><a href="#Revision-diagrams">5.3.1 Reduced display</a>
+<li><a href="#Revision-diagrams">5.3.2 Branch crossings</a>
+<li><a href="#Revision-diagrams">5.3.3 Incoming branches</a>
+<li><a href="#Revision-diagrams">5.3.4 Major branch crossings</a>
+<li><a href="#Revision-diagrams">5.3.5 Annotate display</a>
+</li></ul>
+</li></ul>
+<li><a name="toc_BUGS" href="#BUGS">6 BUGS</a>
+<li><a name="toc_TODO" href="#TODO">7 TODO</a>
+</li></ul>
+</div>
+
+
+
+<div class="node">
+<p><hr>
+<a name="Top"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Introduction">Introduction</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#dir">(dir)</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
+
+</div>
+
+<h2 class="unnumbered">emacs monotone interface</h2>
+
+<p>An emacs front end for monotone, largely inspired on pcl-cvs. 
+This document describes version 0.4
+
+   <p>Copyright &copy; 2005 W. R. Oudshoorn
+
+<ul class="menu">
+<li><a accesskey="1" href="#Introduction">Introduction</a>
+<li><a accesskey="2" href="#Installation">Installation</a>
+<li><a accesskey="3" href="#Using-e_002dmonotone">Using e-monotone</a>
+<li><a accesskey="4" href="#Advanced-Uses">Advanced Uses</a>
+<li><a accesskey="5" href="#Revision-diagrams">Revision diagrams</a>
+<li><a accesskey="6" href="#BUGS">BUGS</a>
+<li><a accesskey="7" href="#TODO">TODO</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="Introduction"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Installation">Installation</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">1 Introduction</h2>
+
+<p>This package is a simple emacs interface to monotone. 
+In its use it is somewhat similar to the pcl-cvs front end for CVS. 
+However pcl-cvs is a mature package and this one is not, so
+expect a lot of rough edges, bugs and not a lot of advanced features.
+
+   <p>For people who do not know pcl-cvs, this mode will allow you to manage
+an existing monotone project.  It will
+
+     <ul>
+<li>Show a listing of all the files in the project, including their state. 
+<li>Allow you to show a diff of an edited file against the repository
+<li>Allow you to commit the whole tree and specify a commit message. 
+<li>Allow to undo file changes, revert the file to version in the monotone database
+<li>Add and Drop files. 
+</ul>
+
+<p class="noindent">What it will not do yet, but is desirable for the future
+
+     <ul>
+<li>Branching, allow to switch to a different branch. 
+<li>Synchronization, synchronize your changes with another database
+<li>Merging
+</ul>
+
+<p class="noindent">What I do not envision this mode to do is
+
+     <ul>
+<li>Create a new project
+<li>Checkout a new project
+<li>etcetera
+</ul>
+
+<p class="noindent">Although, it might be added a la gnus's server configuration.
+
+<div class="node">
+<p><hr>
+<a name="Installation"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Using-e_002dmonotone">Using e-monotone</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<!-- node-name,  next,  previous,  up -->
+<h2 class="chapter">2 Installation</h2>
+
+<p>Installation is pretty straightforward, copy the elisp files,
+<samp><span class="file">e-monotone.el</span></samp>, <samp><span class="file">e-monotone-a.el</span></samp>, <samp><span class="file">e-monotone-wami.el</span></samp>,
+<samp><span class="file">e-monotone-certs.el</span></samp> and <samp><span class="file">e-monotone-graphs.el</span></samp> to
+a location in the emacs load path, and put the following in your <samp><span class="file">.emacs</span></samp> file
+
+<pre class="lisp">     (load "e-monotone.el")
+</pre>
+   <p>If emacs complains during startup that it can not fine <samp><span class="file">e-monotone-a.el</span></samp>
+or any other e-monotone file, the files are not installed the emacs load path. 
+The load path can be changed with
+
+<pre class="lisp">     (add-to-list 'load-path (expand-file-name "/path/to/e-monotone"))
+</pre>
+   <h3 class="section">2.1 Compatibility</h3>
+
+<p>At the moment it is only tested with monotone version 0.23.  It uses
+only a few monotone commands, but these includes <code>automate inventory</code>
+and <code>automate heads</code>.  So if the output format is changed it probably
+will not work.  Also for performance reasons, it will use <code>db execute</code>
+to get all the certificates.  This does not work with version 0.26 because
+the database has changed.  Most things will still work, but most noticably, the
+graph drawing is not as nice with version 0.26.
+
+<h3 class="section">2.2 Configuration</h3>
+
+<p>Emacs need to be able to find the <samp><span class="command">monotone</span></samp> executable.  Default it tries
+to find an executable with the name <samp><span class="command">monotone</span></samp> or <samp><span class="command">mtn</span></samp>
+in the <samp><span class="env">PATH</span></samp>.  If this does not work you can tell emacs which executables to use by putting
+
+<pre class="lisp">     (setq monotone-configuration '(("MT" "/path/and/monotone-executable-pre-0.26-name" t)
+                                    ("_MTN" "/path/and/monotone-executable-0.26-or-higher" nil)))
+</pre>
+   <p>in your <samp><span class="file">.emacs</span></samp> file. 
+If you are on windows, you can use dos style paths but don't forgot to quote the slash. 
+So a path should look like <code>f:\\path\\monotone.exe"</code>.
+
+   <p>Similar for viewing the graphs in emacs you might want to set the path
+to the <samp><span class="command">dot</span></samp> executable.   If <samp><span class="command">dot</span></samp> is not found add
+
+<pre class="lisp">     (setq dot-cmd "/path/and/dot-executable-name")
+</pre>
+   <p>The <samp><span class="command">dot</span></samp> program is part of graphviz and is used
+to convert graphs pictures. 
+The <samp><span class="command">dot</span></samp> program needs to be able to convert to
+<samp><span class="file">.png</span></samp> files.
+
+<div class="node">
+<p><hr>
+<a name="Using-e-monotone"></a>
+<a name="Using-e_002dmonotone"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Advanced-Uses">Advanced Uses</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Installation">Installation</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">3 Using e-monotone</h2>
+
+<h3 class="section">3.1 The main window</h3>
+
+<p>The first thing to do is to have a monotone project.  Now lets assume
+this project lives in the directory <samp><span class="file">~/src/em</span></samp>. 
+Now to start the e-monotone you use the command
+<kbd>M-x monotone-examine</kbd>.  This will prompt for a directory in
+the usual emacs way.  So just supply the directory above, <samp><span class="file">~/src/em</span></samp>
+and you end up with a screen that roughly looks like:
+
+   <p><table class="cartouche" summary="cartouche" border="1"><tr><td>
+<pre class="example">     <b>directory</b> ~/src/em
+     <b>revision</b>  3f70e5cd7cee3b080767aa447354dcb16bcff2ef
+     <b>heads</b>     3f70e5cd7cee3b080767aa447354dcb16bcff2ef
+     
+       <b>branch</b> "nl.xs4all.ironhead.emacs-monotone"
+     <b>database</b> "/home/woudshoo/monotone/configuration.db"
+          <b>key</b> ""
+     
+     Working copy based on head, and there are <b>pending</b> changes
+     
+     edited:                0    added:                 1    unknown:   16
+     renamed-and-edited:    0    added-and-missing:     0    ignored:    3
+     renamed:               0    dropped:               0
+     unchanged:             2    missing:               0    TOTAL:     22
+     
+     Currently displaying (added added-and-missing dropped edited renamed missing)
+     
+     
+            <b>added</b>  e-monotone.texi
+</pre>
+   </td></tr></table>
+
+   <p>Now there a few sections in in the screen,
+the first two lines indicate on which revision our current source is based,
+and what the monotone-database thinks the most up to date revisions are. 
+In this case, they are equal, so we are working on the head revision. 
+This information is also displayed in the 8-th line, which is the summary line. 
+The summary line displays the most important information, in the example it is
+<pre class="example">     Working copy based on head, and there are <b>pending</b> changes
+</pre>
+   <p>and here we can see that we are based on head, so committing
+will not create an additional head and there are local changes.
+
+   <p>Just above the summary line we have some general information,
+the branch we work on, the database that is used and the default
+key that is used.  Actually it is just the content of the <samp><span class="file">MT/options</span></samp> file.
+
+   <p>Below the summary line we display some statistics of the project. 
+Here we see that the project contains 22 files, of which 19 are not
+under version control (the unknown and the ignored files) one is newly added,
+and 2 are already under version control but not changed.
+
+   <p>Below the statistics section we see the file listing. 
+In this example it shows only one file, the newly added <samp><span class="file">e-monotone.texi</span></samp> file. 
+It shows only one file, because the file listing is filtered.  At the moment
+it shows only interesting files.  The buffer explains which files are displayed
+by the line:
+<pre class="example">     Currently displaying (added added-and-missing dropped edited renamed missing)
+</pre>
+   <p>So it does display the added file, but not the 16 unknown and not the 3 ignored files.
+
+<h4 class="subsection">3.1.1 Filtering</h4>
+
+<p>As seen in this example, the list of files is filtered.  When <kbd>M-x monotone-examine</kbd> is
+invoked it starts with displaying only the interesting files.  The interesting files
+are files which according to monotone have one of the following states
+<code>added, dropped, renamed, edited, missing, added-and-missing</code>. 
+This is done to avoid cluttering the buffer all the uninteresting files. 
+However it is very easy to change the filtering.  If you want to see all
+files just press the key <kbd>a</kbd> for all and you will see all files listed, in this case 22. 
+Pressing <kbd>i</kbd> will bring you back to the list of interesting files. 
+There is one other predefined filter, accessed by <kbd>k</kbd>, the known file list.  This
+displays all files that are under version control.
+
+   <p>It is also possible to show/hide per category.
+     <dl>
+<dt><kbd>sa</kbd><dd>Toggles the display of the added files
+<br><dt><kbd>sd</kbd><dd>Toggle the display of dropped files
+<br><dt><kbd>si</kbd><dd>Toggles the display of ignored files
+<br><dt><kbd>sm</kbd><dd>Toggle the display of missing files
+<br><dt><kbd>se</kbd><dd>Toggle the display of edited files
+<br><dt><kbd>su</kbd><dd>Toggle the display of unchanged files
+<br><dt><kbd>sr</kbd><dd>Toggle the display of renamed files
+<br><dt><kbd>s?</kbd><dd>Toggle the display of unknown files
+</dl>
+
+<h4 class="subsection">3.1.2 Examining files</h4>
+
+<p>When the cursor is positioned on file line the <kbd>&lt;RET&gt;</kbd> will open this
+file in a new buffer. 
+If the file was edited you can use the <kbd>=</kbd> key to open a buffer
+containing the difference between the current content and the content
+of the file as it was when this version was checked out.
+
+<h4 class="subsection">3.1.3 Reverting</h4>
+
+<p>After you have carefully considered the output of <kbd>=</kbd> and decide
+that you do not want this change, for example because you have only
+added temporary debugging statement, you can use <kbd>U</kbd> in the monotone
+buffer, with the cursor on the line of the file, to revert this file back
+to the original state.
+
+<h4 class="subsection">3.1.4 Adding/Dropping</h4>
+
+<p>In the monotone buffer the keys <kbd>A</kbd> and <kbd>D</kbd> can be used to add respectively
+drop files from monotone.
+
+<h3 class="section">3.2 Committing</h3>
+
+<p>Finally we want to commit.  By pressing <kbd>C</kbd> a buffer is opened that
+contains a description of all the changes that are being committing. 
+All the lines in this buffer start with <code>MT:</code>.  Just before the actual
+commit takes place all the lines starting with <code>MT:</code> are removed and the
+text that is left is used as the commit message. 
+The user initiates the commit by pressing <kbd>C-c C-c</kbd> in the commit buffer. 
+So normally you press <kbd>C</kbd> in the monotone buffer, add some lines in the
+commit buffer and finish it off with <kbd>C-c C-c</kbd>. 
+If at any time you want to remove the comment lines, you can do that by
+<kbd>C-c C-r</kbd>.  If you do not want to see these lines at all you should
+start by using <kbd>c</kbd> instead of <kbd>C</kbd>.  Using the lowercase version
+is equivalent with the capital version except that the commit buffer starts
+out empty.
+
+<div class="node">
+<p><hr>
+<a name="Advanced-Uses"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Revision-diagrams">Revision diagrams</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Using-e_002dmonotone">Using e-monotone</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">4 Advanced Uses</h2>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Marking">Marking</a>
+<li><a accesskey="2" href="#Difference-revision">Difference revision</a>
+<li><a accesskey="3" href="#Annotate">Annotate</a>
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="Marking"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Difference-revision">Difference revision</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Advanced-Uses">Advanced Uses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Advanced-Uses">Advanced Uses</a>
+
+</div>
+
+<h3 class="section">4.1 Marking</h3>
+
+<p>In the monotone buffer you can mark files by pressing <kbd>m</kbd> and
+unmark them with <kbd>u</kbd>.  After marking the commands that
+normally work on a single file will work on the marked collection. 
+This allows you to Add, Delete, Revert or Commit only a selected
+number of files.
+
+   <p>Note that marking and displaying are independent. 
+So it is possible to have a lot of marked files and
+not see them flagged in the monotone buffer. 
+Fortunately e-monotone will ask for confirmation when operating
+on the marked files.
+
+   <p>The key <kbd>M-u</kbd> will unmark all marked files.
+
+<div class="node">
+<p><hr>
+<a name="Difference-revision"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Annotate">Annotate</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Marking">Marking</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Advanced-Uses">Advanced Uses</a>
+
+</div>
+
+<h3 class="section">4.2 Diffing revisions</h3>
+
+<p>Pressing <kbd>=</kbd> on the revision ids in the top of the buffer will
+present a diff between that revision and your working copy.
+
+<div class="node">
+<p><hr>
+<a name="Annotate"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Difference-revision">Difference revision</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Advanced-Uses">Advanced Uses</a>
+
+</div>
+
+<!-- node-name,  next,  previous,  up -->
+<h3 class="section">4.3 Annotate</h3>
+
+<p>Presssing <kbd>t</kbd> in the monotone buffer on a line containing a file
+will show the annotated version.
+
+   <p>The annotated file is by default displayed with on the left hand side
+a shortened revision hash and on the right hand side the content of the file.
+
+   <p>The display can be changed in several ways,
+     <dl>
+<dt><kbd>ss</kbd><dd>Shows the shortened revision hashes, this is the default. 
+<br><dt><kbd>sf</kbd><dd>Show the full length revision hash. 
+<br><dt><kbd>sa</kbd><dd>Show the value of the author certificate
+<br><dt><kbd>sd</kbd><dd>Show the value of the date certificate
+</dl>
+
+   <p>Furthermore, the way the lines are coloured can be changed,
+the default is to more or less assign a random colour
+to a revision. By key sequence <kbd>cd</kbd> will colour the revisions
+by date.  Pressing <kbd>cr</kbd> will revert to the random colouring
+of revisions.
+
+<div class="node">
+<p><hr>
+<a name="Revision-diagrams"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#BUGS">BUGS</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Advanced-Uses">Advanced Uses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<!-- node-name,  next,  previous,  up -->
+<h2 class="chapter">5 Revision diagrams</h2>
+
+<p>In the monotone and annotate buffer pressing <kbd>W</kbd> show
+a revision graph rendered by <samp><span class="command">dot</span></samp>.
+
+<h3 class="section">5.1 Revision graphs</h3>
+
+<p>A monotone database typically holds hundredths or thousands of revisions,
+so a displaying a complete revision graph is a bit useless. 
+The graph needs to be reduced to a managable size.
+
+   <p>A simple way of reducing the graph is to pick an interesting node,
+like the current revision, and only show a small neighborhood
+of this node.
+
+   <p>This is of course not the only way to reduce a graph, but
+to keep it managable in monotone all graphs displayed are limited
+by the number of nodes displayed.   The numebr of nodes that is displayed
+is increased by the <kbd>+</kbd> key and reduced by the <kbd>-</kbd>.  Because
+the image displayed has a fixed size this will result in some kind
+of zooming effect.
+
+<h3 class="section">5.2 Configuration</h3>
+
+<p>There are two important variables that you can configure for the displaying
+of the revision graphs,
+
+     <dl>
+<dt><code>monotone-preffered-branches</code><dd>This variable contains a list of regular expressions. 
+These expressions are used when a revision has multiple branch certificates. 
+If a revision has multiple branch certificates and one of branch names
+matches one of the regular expressions in the preffered-branches variables
+it will assume the matched branch name for coloring. 
+<br><dt><code>monotone-wami-node-displayed-certs</code><dd>This variable determines which certificates are displayed in the diagrams. 
+It is a list of certificate names to display.  A list element is either
+a string, in which case the value is displayed as such, or a cons pair. 
+The first element of the cons pair is a certifacte name and the second
+element a functions which takes as argument the branch value and
+returns the string to display instead. 
+</dl>
+
+<h3 class="section">5.3 Types of revision graphs</h3>
+
+<p>Beside just taking a number of neighbouring nodes e-monotone has
+the ability to modify the displayed graph in interesting ways.
+
+<h4 class="subsection">5.3.1 Reduced display</h4>
+
+<p>A basic reduction step is to remove all nodes that have exactly
+one parent and exactly one child. 
+Removing these nodes will leave the topology of the graph intact
+and allow you to display more of the neighbourhood of the interesting
+node than otherwise would be the case.  The displayed graph will
+display the edge that previously contained the node blue, so
+you have an indication that some revisions are ommited along the blue arc.
+
+<h4 class="subsection">5.3.2 Branch crossings</h4>
+
+<p>This reduction steps try to display the interaction between branches
+by mostly ignoring what happens inside a branch.  The reduction tries
+to remove as many nodes as possible, only keeping those
+who either have a parent in a different branch or a child in a different branch. 
+Also in order to keep an overview, head nodes and root nodes are not deleted.
+
+<h4 class="subsection">5.3.3 Incoming branches</h4>
+
+<p>This concentrates on what is merged in from other branches in the
+current branch.  Here current branch is determined by which branch the
+intereseting revision belongs to.  The nodes that are kept are
+the nodes in the current branch who have a parent in a different branch. 
+Also nodes in a branch different from the current branch who have
+a child in the current branch are kept.  As usual the heads and root
+node of the current branch are not discarded.
+
+<h4 class="subsection">5.3.4 Major branch crossings</h4>
+
+<p>This needs to be documented and made configurable.
+
+<h4 class="subsection">5.3.5 Annotate display</h4>
+
+<p>If the graph is generated from the annotate buffer the graph displayed
+will display the current revision plus all revisions that are mentioned
+in the annotate buffer.
+
+<div class="node">
+<p><hr>
+<a name="BUGS"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#TODO">TODO</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Revision-diagrams">Revision diagrams</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">6 BUGS</h2>
+
+<p>There a plenty bugs I know of,
+     <ul>
+<li>Cursor position is not well maintained when buffer is redisplayed
+<li>Lots of file states are not handled correctly, for example renaming
+<li>Font lock coloring of the commit buffer is wrong
+<li>After add/drop/revert the file status displayed may be incorrect. 
+Work around, regenerate with <kbd>g</kbd>
+<li>Many many more
+</ul>
+
+<div class="node">
+<p><hr>
+<a name="TODO"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#BUGS">BUGS</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">7 TODO</h2>
+
+<p>A lot :-)
+
+</body></html>
+
